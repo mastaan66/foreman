@@ -20,9 +20,9 @@ director ─▶ lead (premium: plan · review · gates)
 > **Design doc:** [`docs/WORKFORCE_PLAN.md`](docs/WORKFORCE_PLAN.md) · **Zero dependencies · Node ≥22 · opencode as substrate**
 
 <p align="center">
-  <img src="https://via.placeholder.com/800x450/0f172a/22c55e?text=foreman+demo.gif+%E2%80%94+replace+with+VHS+recording" alt="foreman demo" width="800" />
+  <img src="docs/demo.gif" alt="foreman demo — doctor, init, agents" width="800" />
   <br/>
-  <em>Demo: <code>foreman init && foreman ticket hello && foreman run T001 --verify</code> — 30s to first verified ticket. <a href="#recording-a-demo">Record your own with VHS</a></em>
+  <em>Demo: <code>foreman doctor && foreman --help — 0.3.0</code> — full workflow: <code>foreman init && foreman ticket hello && foreman run T001 --verify</code> in 30s. <a href="#recording-a-demo">Record your own with VHS</a> · <code>vhs docs/demo.tape</code></em>
 </p>
 
 ## 15-second quick start

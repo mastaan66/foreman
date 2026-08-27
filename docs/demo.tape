@@ -1,10 +1,15 @@
 Output docs/demo.gif
+Require foreman
+Require echo
+Set Shell "bash"
 Set FontSize 14
 Set Width 1200
 Set Height 700
 Set Theme "Catppuccin Mocha"
 Set Padding 20
 Set Framerate 30
+Set TypingSpeed 30ms
+Set WindowBar Colorful
 
 Type "foreman --version"
 Enter
