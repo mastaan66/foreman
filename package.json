@@ -1,0 +1,13 @@
+{
+  "name": "foreman",
+  "version": "0.2.0",
+  "description": "Multi-model orchestration engine for AI coding agents: hierarchy, tiers, budgets, gates, dashboard.",
+  "type": "module",
+  "bin": { "foreman": "./bin/foreman" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check lib.mjs && node --check foreman.mjs && node --check ui.mjs"
+  },
+  "engines": { "node": ">=22" },
+  "license": "MIT"
+}
