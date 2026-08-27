@@ -80,6 +80,22 @@ foreman doctor
 
 Token discipline (binding, see plan §3): deterministic before generative, premium tier judges only from capped briefs, volume goes down-tier, no `--continue` past the tier's context cap — fresh session from a deterministic checkpoint brief instead.
 
+## Decision-making friend — for heavy workloads
+
+Foreman is your companion when every ticket needs a tradeoff. It doesn't just run — it *decides* with you:
+
+```bash
+foreman decide "pg vs mongo for auth?" --options "pg,mongo" --criteria "consistency,scale,cost"
+# → lead (premium) returns matrix: pros/cons/risk/effort + one-paragraph recommendation
+
+foreman plan "Build SaaS billing"      # lead breaks vague goal into tickets (<40m each)
+foreman prioritize                     # ready vs blocked, next up (deps)
+foreman companion                      # one-shot suggestion
+foreman companion --watch              # proactive friend — nudges every 30s
+```
+
+All platforms & CLIs: `npm`/`npx`/`brew`, `macOS/Linux/Windows` (`bin/foreman`, `bin/foreman.cmd`, `bin/foreman.ps1`), `bash/zsh/fish/pwsh`, `opencode`/`claude`/`codex` via `foreman ask`. Site: `https://mastaan66.github.io/foreman/` · Example: `docs/example-ticket.md` · Demo: `docs/demo.gif` 45s macOS.
+
 ## How it works — the pipe
 
 ```

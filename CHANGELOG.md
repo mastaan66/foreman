@@ -4,6 +4,16 @@ All notable changes to foreman.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-27
+
+### Added
+- Decision friend: `foreman decide --options --criteria`, `foreman plan "goal"`, `foreman prioritize`, `foreman companion [--watch]` (`foreman.mjs:933-1007`)
+- Cross-platform: `bin/foreman.cmd` + `bin/foreman.ps1` for Windows, sh bin portable
+- Example ticket `docs/example-ticket.md` (5k, JWT auth) showing hierarchy + memory, linked in README and site
+- Site `docs/index.html` (GitHub Pages https://mastaan66.github.io/foreman/) — hero, how-to-use, hierarchy, memory, packages (npm vs GitHub Packages)
+- Marketing kit `MARKETING.md` — positioning, story, HN/Reddit/X/LinkedIn templates, launch checklist
+- Demo 45s `docs/demo.gif` (3.9M, 1280×760, Catppuccin Macchiato) — how to use, hierarchy, memory, ticket example, `ui --once`
+
 ## [0.3.1] - 2026-08-27
 
 ### Added
