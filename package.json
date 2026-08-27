@@ -1,5 +1,5 @@
 {
-  "name": "@mastaan/foreman",
+  "name": "@mastaan66/foreman",
   "version": "0.3.0",
   "description": "Multi-model orchestration engine for AI coding agents: hierarchy, tiers, budgets, gates, dashboard.",
   "type": "module",

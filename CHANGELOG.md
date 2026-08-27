@@ -13,7 +13,7 @@ All notable changes to foreman.
 - `foreman --version` / `-v` / `version` (reads package.json)
 - `foreman doctor` — checks Node ≥22, opencode, workspace, models, git
 - `foreman init` wizard: shows tiers, next steps, 15s quick start, `--sample` flag
-- Scoped npm package `@mastaan/foreman` with `files`, `keywords`, `publishConfig`, `prepublishOnly`
+- Scoped npm package `@mastaan66/foreman` with `files`, `keywords`, `publishConfig`, `prepublishOnly`
 - CI matrix Node 22/24, `LICENSE`, `CONTRIBUTING.md`, GitHub topics
 - README overhaul: badges, demo placeholder, 15s quickstart, tiers table, command reference
 - `docs/demo.tape` for VHS

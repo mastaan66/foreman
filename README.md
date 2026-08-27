@@ -1,6 +1,7 @@
 # Foreman
 
-[![npm version](https://img.shields.io/npm/v/@mastaan/foreman?color=brightgreen)](https://www.npmjs.com/package/@mastaan/foreman)
+[![npm version](https://img.shields.io/npm/v/@mastaan66/foreman?color=brightgreen)](https://www.npmjs.com/package/@mastaan66/foreman)
+[![GitHub release](https://img.shields.io/github/v/release/mastaan66/foreman?label=release&color=blue)](https://github.com/mastaan66/foreman/releases)
 [![CI](https://github.com/mastaan66/foreman/actions/workflows/ci.yml/badge.svg)](https://github.com/mastaan66/foreman/actions)
 [![Node >=22](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -28,8 +29,8 @@ director ─▶ lead (premium: plan · review · gates)
 
 ```bash
 # 1. install
-npm i -g @mastaan/foreman
-# or: npx @mastaan/foreman --version
+npm i -g @mastaan66/foreman
+# or: npx @mastaan66/foreman --version
 
 # 2. check
 foreman doctor          # Node, opencode, workspace
@@ -58,8 +59,8 @@ foreman ui --once      # one frame for screenshots/CI
 
 | Method | Command |
 |---|---|
-| npm (recommended) | `npm i -g @mastaan/foreman` |
-| npx (no install) | `npx @mastaan/foreman --help` |
+| npm (recommended) | `npm i -g @mastaan66/foreman` |
+| npx (no install) | `npx @mastaan66/foreman --help` |
 | from source | `git clone https://github.com/mastaan66/foreman && ln -s $PWD/foreman/bin/foreman ~/.local/bin/foreman` |
 
 Requires **Node ≥22** and **opencode ≥1.18** on `PATH`:

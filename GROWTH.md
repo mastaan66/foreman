@@ -6,10 +6,10 @@ Follow the trending mechanic: **80+ stars in 24h beats 300 over a month**. Compr
 
 - [x] README: one-line value prop above fold, badges, 15s quickstart, demo placeholder
 - [x] `foreman --version`, `foreman doctor`, `foreman init --sample`
-- [x] npm package `@mastaan/foreman` publish-ready, CI green, LICENSE, topics
+- [x] npm package `@mastaan66/foreman` publish-ready, CI green, LICENSE, topics
 - [ ] Replace placeholder with real `docs/demo.gif` via VHS (`vhs docs/demo.tape`)
 - [ ] `npm publish --access public` (requires `npm login`)
-- [ ] Verify `npx @mastaan/foreman --version` works from fresh machine
+- [ ] Verify `npx @mastaan66/foreman --version` works from fresh machine
 
 ## 1. Distribution (next 48h)
 
@@ -51,7 +51,7 @@ Use `star-history.com/#mastaan66/foreman` and `Insights → Traffic → Referrin
 ## 5. Measure
 
 - `gh api repos/mastaan66/foreman --jq .stargazers_count`
-- `npm view @mastaan/foreman downloads --json` (after publish)
+- `npm view @mastaan66/foreman downloads --json` (after publish)
 - `star-history.com` curve — spikes should map 1:1 to launch events
 - Ask: "stars per hour of effort" — double down on winners
 
