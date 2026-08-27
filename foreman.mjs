@@ -934,31 +934,44 @@ function cmdVersion() {
   process.stdout.write(`${VERSION}\n`);
 }
 
-function cmdHelp() {
-  process.stdout.write(`foreman v${VERSION} — multi-model orchestration engine for AI coding agents
+// ---------- command registry — one deep interface, N handlers ----------
+const COMMANDS = [
+  { name: "init", handler: cmdInit, usage: "init [dir] [--name project] [--sample]", desc: "create .foreman/ with the default agent roster; sync .opencode/agent" },
+  { name: "agents", handler: cmdAgents, usage: "agents [sync|install]", desc: "roster: role, tier, resolved model, supervisor, phase, spend" },
+  { name: "models", handler: cmdModels, usage: "models [--probe] [model]", desc: "tiers, fallbacks and model health; --probe pings each model and records it" },
+  { name: "ask", handler: cmdAsk, usage: 'ask <agent> "prompt" [--fresh] [--file f] [--model p/m]', desc: "talk to any agent in its persistent session (fresh past the tier's context cap)" },
+  { name: "ticket", handler: cmdTicket, usage: 'ticket <slug> --title "..." [--kind k] [--parent T001]', desc: "" },
+  { name: "run", handler: cmdRun, usage: 'run <id> [--message "..."] [--continue] [--agent a] [--tier t] [--model p/m] [--purpose work|report] [--timeout min] [--idle min] [--verify] [--auto-report]', desc: "route + dispatch with budgets; --continue is refused past the context cap" },
+  { name: "work", handler: cmdWork, usage: "work [--concurrency N] [--max N] [--watch]", desc: "daemon: ready tasks → agents, gates, escalation ladder, commit boundaries" },
+  { name: "queue", handler: cmdQueue, usage: "queue [--max N]", desc: "simple sequential runner (stops at first failed gate)" },
+  { name: "verify", handler: cmdVerify, usage: "verify <id>", desc: "run the ticket's gates (recorded; the worker's word is never the gate)" },
+  { name: "accept", handler: cmdAccept, usage: 'accept <id> --note "..."', desc: "manager promotes a stalled/timeout ticket whose gate passed" },
+  { name: "note", handler: cmdNote, usage: 'note "..." [--ticket T] [--phase p]', desc: "" },
+  { name: "cost", handler: cmdCost, usage: "cost [--by tier|agent|model|ticket] [--json]", desc: "" },
+  { name: "status", handler: cmdStatus, usage: "status", desc: "" },
+  { name: "report", handler: cmdReport, usage: "report <id>", desc: "" },
+  { name: "tail", handler: cmdTail, usage: "tail <id> [--lines N]", desc: "" },
+  { name: "diff", handler: cmdDiff, usage: "diff", desc: "" },
+  { name: "ui", handler: cmdUi, usage: "ui [--queue|--work] [--once] [--view org|tasks|agent|cost|stream]", desc: "open the dashboard (same as `foreman` when inside a workspace)" },
+  { name: "doctor", handler: cmdDoctor, usage: "doctor", desc: "check Node, opencode, workspace, models" },
+  { name: "version", handler: cmdVersion, usage: "--version | -v | version", desc: "print version" },
+  { name: "help", handler: cmdHelp, usage: "help", desc: "" },
+];
 
-  foreman                                   open the dashboard (same as \`foreman ui\`) when inside a workspace
-  foreman ui [--queue|--work] [--once] [--view org|tasks|agent|cost|stream]
-  foreman init [dir] [--name project]       create .foreman/ with the default agent roster; sync .opencode/agent
-  foreman agents [sync|install]             roster: role, tier, resolved model, supervisor, phase, spend
-  foreman models [--probe] [model]          tiers, fallbacks and model health; --probe pings each model and records it
-  foreman ask <agent> "prompt" [--fresh] [--file f] [--model p/m]
-                                            talk to any agent in its persistent session (fresh past the tier's context cap)
-  foreman ticket <slug> --title "..." [--kind k] [--parent T001]
-  foreman run <id> [--message "..."] [--continue] [--agent a] [--tier t] [--model p/m] [--purpose work|report]
-                     [--timeout min] [--idle min] [--verify] [--auto-report]
-                                            route + dispatch with budgets; --continue is refused past the context cap
-  foreman work [--concurrency N] [--max N] [--watch]
-                                            daemon: ready tasks → agents, gates, escalation ladder, commit boundaries
-  foreman queue [--max N]                   simple sequential runner (stops at first failed gate)
-  foreman verify <id>                       run the ticket's gates (recorded; the worker's word is never the gate)
-  foreman accept <id> --note "..."          manager promotes a stalled/timeout ticket whose gate passed
-  foreman note "..." [--ticket T] [--phase p]
-  foreman cost [--by tier|agent|model|ticket] [--json]
-  foreman status · report <id> · tail <id> [--lines N] · diff
-  foreman doctor                            check Node, opencode, workspace, models
-  foreman --version | -v | version          print version
-`);
+function cmdHelp() {
+  const lines = [`foreman v${VERSION} — multi-model orchestration engine for AI coding agents`, ""];
+  lines.push(`  foreman                                   open the dashboard (same as \`foreman ui\`) when inside a workspace`);
+  for (const c of COMMANDS) {
+    if (c.name === "help") continue;
+    const raw = `  foreman ${c.usage}`;
+    if (raw.length > 58) {
+      lines.push(raw);
+      if (c.desc) lines.push(" ".repeat(58) + c.desc);
+    } else {
+      lines.push(raw.padEnd(58) + (c.desc || ""));
+    }
+  }
+  process.stdout.write(lines.join("\n") + "\n");
 }
 
 // `foreman status | head` must not stack-trace when the reader closes the pipe early.
@@ -981,7 +994,10 @@ if (cmd === "--help" || cmd === "-h") {
   cmdHelp();
   process.exit(0);
 }
-const table = { init: cmdInit, ticket: cmdTicket, agents: cmdAgents, models: cmdModels, ask: cmdAsk, run: cmdRun, work: cmdWork, queue: cmdQueue, verify: cmdVerify, accept: cmdAccept, note: cmdNote, cost: cmdCost, status: cmdStatus, report: cmdReport, diff: cmdDiff, tail: cmdTail, ui: cmdUi, help: cmdHelp, doctor: cmdDoctor, version: cmdVersion };
+const table = Object.fromEntries(COMMANDS.map((c) => [c.name, c.handler]));
+// aliases that map to version
+table["--version"] = cmdVersion;
+table["-v"] = cmdVersion;
 if (!cmd) {
   if (Workspace.find()) await cmdUi(args);
   else cmdHelp();
