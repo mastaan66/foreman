@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Foreman — Multi-model orchestration for AI coding agents</title>
+<meta name="description" content="Director writes tickets. A tiered workforce (lead → coder → drone) executes them through opencode under hard budgets and context caps. Your decision-making friend.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  .mac-bar { background: linear-gradient(#3a3a3c,#2c2c2e); }
+  .dot { width:10px;height:10px;border-radius:9999px;display:inline-block; }
+</style>
+</head>
+<body class="bg-[#0a0a0b] text-zinc-100 antialiased selection:bg-emerald-500/30">
+<header class="sticky top-0 z-10 backdrop-blur bg-black/40 border-b border-white/10">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center font-mono font-bold text-black">F</div>
+      <span class="font-mono font-bold tracking-tight">foreman</span>
+      <span class="text-xs px-2 py-1 rounded bg-white/10 border border-white/10">v0.3.1</span>
+      <span class="hidden sm:inline text-xs text-zinc-400">· director → lead → coder → drone</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="https://github.com/mastaan66/foreman" class="text-sm px-3 py-1.5 rounded-full bg-white text-black font-medium hover:bg-zinc-200">GitHub →</a>
+      <a href="https://www.npmjs.com/package/@mastaan66/foreman" class="hidden sm:inline text-sm px-3 py-1.5 rounded-full border border-white/15 hover:bg-white/10">npm</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6">
+  <!-- HERO -->
+  <section class="py-14 grid lg:grid-cols-2 gap-10 items-center">
+    <div>
+      <p class="text-xs uppercase tracking-[0.2em] text-emerald-400">Multi-model orchestration · zero deps · Node ≥22</p>
+      <h1 class="text-[40px] leading-[0.95] font-black tracking-tight mt-3">Your <span class="text-emerald-400">decision-making</span> friend for heavy workloads.</h1>
+      <p class="text-zinc-400 mt-4 leading-relaxed">Foreman is the pipe between you and a tiered workforce. <b class="text-zinc-200">You write tickets</b> — a lead on a premium model judges the brief and writes gates, coders on standard implement under budgets, drones on economy write reports. The engine <b class="text-zinc-200">routes, enforces, and shows you everything</b>.</p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <code class="px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 font-mono text-sm">npm i -g @mastaan66/foreman</code>
+        <code class="px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 font-mono text-sm">foreman init && foreman ticket hello</code>
+      </div>
+      <div class="mt-6 flex gap-3 text-sm">
+        <a href="#quickstart" class="px-4 py-2 rounded-full bg-emerald-500 text-black font-medium">Quick start →</a>
+        <a href="https://github.com/mastaan66/foreman/releases" class="px-4 py-2 rounded-full border border-white/15 hover:bg-white/10">Releases</a>
+      </div>
+      <div class="mt-4 flex gap-2 text-xs">
+        <span class="px-2 py-1 rounded bg-white/5 border border-white/10">director → lead (premium)</span>
+        <span class="px-2 py-1 rounded bg-white/5 border border-white/10">coder/tester (standard)</span>
+        <span class="px-2 py-1 rounded bg-white/5 border border-white/10">drone (economy)</span>
+      </div>
+    </div>
+    <div class="rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl">
+      <div class="mac-bar px-3 py-2 flex items-center gap-1.5 border-b border-white/10">
+        <span class="dot bg-red-500"></span><span class="dot bg-yellow-500"></span><span class="dot bg-green-500"></span>
+        <span class="ml-3 text-xs font-mono text-zinc-400">foreman — 45s demo — macOS • Catppuccin Macchiato</span>
+      </div>
+      <img src="demo.gif" alt="foreman demo 45s macOS" class="w-full">
+      <div class="px-3 py-2 text-xs font-mono text-zinc-400 bg-black/40 border-t border-white/10">vhs docs/demo.tape → docs/demo.gif · every command in one take</div>
+    </div>
+  </section>
+
+  <!-- HOW TO USE -->
+  <section id="quickstart" class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">How to use — 30 seconds to first verified ticket</h2>
+    <div class="grid md:grid-cols-3 gap-6 mt-6">
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="text-emerald-400 font-mono text-xs">01 — Install & check</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-bash">npm i -g @mastaan66/foreman
+foreman doctor
+# ✓ Node 22, opencode, workspace</code></pre>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="text-emerald-400 font-mono text-xs">02 — Write a ticket</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-bash">foreman init --name myapp
+foreman ticket auth --title "Add JWT auth"
+$EDITOR .foreman/tickets/T001-auth.md
+# Goal, Requirements, verify gates</code></pre>
+        <a href="example-ticket.md" class="text-xs text-emerald-400 hover:underline mt-2 inline-block">→ See exemplary ticket</a>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="text-emerald-400 font-mono text-xs">03 — Run & verify</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-bash">foreman run T001 --verify
+foreman tail T001
+foreman report T001
+foreman cost --by tier</code></pre>
+        <span class="text-xs text-zinc-500 mt-2 inline-block">Worker's word is never the gate — foreman runs verify itself.</span>
+      </div>
+    </div>
+    <div class="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm">
+      <b>Decision-heavy day?</b> <code class="bg-black px-1.5 py-1 rounded">foreman decide "pg vs mongo?" --options "pg,mongo" --criteria "consistency,scale,cost"</code> asks the lead for a matrix. <code>foreman plan "build billing"</code> breaks a vague goal into tickets. <code>foreman companion --watch</code> nudges you every 30s. <code class="bg-black px-1.5 py-1 rounded">foreman prioritize</code> ranks what's ready.
+    </div>
+  </section>
+
+  <!-- HIERARCHY -->
+  <section class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">Hierarchy management — who does what, and why</h2>
+    <p class="text-zinc-400 mt-2 max-w-3xl">One interface, deep implementation. The expensive model never implements — it judges. Volume goes down-tier. Every hand-off is a capped brief, not a log.</p>
+    <div class="grid lg:grid-cols-2 gap-6 mt-6">
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-zinc-500">ORG — foreman agents</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code>AGENT      ROLE       TIER      MODEL
+lead       lead       premium   minimax-m3       → director
+coder      coder      standard  muse-spark-1.2   → lead
+tester     tester     standard  muse-spark-1.2   → lead
+drone      drone      economy   hy3-free         → lead
+librarian  librarian  economy   hy3-free         → lead</code></pre>
+        <div class="mt-3 text-xs text-zinc-500">routing[implement]=coder, routing[plan]=lead, routing[report]=drone. <code>assignee</code> in ticket overrides.</div>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-zinc-500">PIPELINE — foreman status / ui</div>
+        <div class="mt-3 bg-black rounded-lg p-4 font-mono text-sm leading-6">
+          <div>● T001 scaffold ──┬─▶● T002 api ──┬─▶ ◐ T003 auth</div>
+          <div class="text-zinc-500">queued ○  running ◐  review ◔  verified ●  blocked ⊘</div>
+          <div class="mt-2 text-emerald-400">foreman ui → 1 STREAM  2 ORG  3 TASKS  4 COST</div>
+        </div>
+        <div class="mt-3 text-xs text-zinc-500">Escalation ladder: attempt 1 → fresh retry, 2 → lead review (FEEDBACK.md), 3 → blocked.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEMORY -->
+  <section class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">Memory management — budgets, caps, and checkpoint briefs</h2>
+    <p class="text-zinc-400 mt-2 max-w-3xl">No session grows without limit. The engine, not the model, decides when enough is enough.</p>
+    <div class="grid lg:grid-cols-2 gap-6 mt-6">
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-zinc-500">TIERS — .foreman/foreman.json</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-json">{
+  "tiers": {
+    "premium":  { "model":"minimax-m3", "ctxCap":90000, "ctxKill":180000, "maxOut":12000 },
+    "standard": { "model":"muse-spark-1.2", "ctxCap":60000, "ctxKill":140000, "maxOut":30000 },
+    "economy":  { "model":"hy3-free",     "ctxCap":40000, "ctxKill":90000,  "maxOut":8000 }
+  }
+}</code></pre>
+        <div class="mt-2 text-xs text-zinc-500"><code>ctxCap</code> = continuation gate (never --continue past it). <code>ctxKill</code> = hard mid-run ceiling (≈2×).</div>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-zinc-500">BUDGET — lib.mjs:checkBudget()</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-js">// one deep seam, pure, testable
+checkBudget(run, budget, tier) → {over, warn, usd}
+// over: steps/outTokens/ctxKill/usd crossed → SIGTERM
+// warn: ctx > ctxCap → finish but never resume, next run = fresh + brief</code></pre>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code>budget: {steps:60, outTokens:20k} ∩ tier.maxOut
+foreman cost --by tier  # spend, stall rate per model</code></pre>
+        <div class="mt-2 text-xs text-zinc-500">Checkpoint brief (6k cap): ticket + git diff + REPORT.md + gate tail — deterministic, no LLM.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TICKET EXAMPLE -->
+  <section class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">Ticket example — the document that survives the run</h2>
+    <p class="text-zinc-400 mt-2">A ticket is not a prompt. It's a brief the manager refines between runs, with verify commands that can FAIL on each criterion.</p>
+    <div class="mt-6 rounded-xl overflow-hidden border border-white/10">
+      <div class="bg-zinc-900 px-4 py-2 font-mono text-xs text-zinc-400 flex items-center justify-between">
+        <span>docs/example-ticket.md — JWT auth</span>
+        <a href="example-ticket.md" class="text-emerald-400 hover:underline">Open →</a>
+      </div>
+      <pre class="bg-black p-4 overflow-x-auto text-sm max-h-[420px] overflow-y-auto"><code>---
+id: T001
+title: Add JWT auth to the API
+kind: implement
+verify:
+  - test -f src/auth/jwt.ts
+  - node --test src/auth/jwt.test.ts | grep -E '^# pass ([3-9]|[1-9][0-9]+)$'
+budget: {steps:60, outTokens:20000}
+---
+# Add JWT auth...
+## Goal — POST /auth/login → {token}, GET /auth/me → user
+## Requirements — 1. jwt.ts sign/verify 2. middleware.ts 3. wire server.ts
+## Acceptance — 5 criteria, each verifiable
+## Out of scope — no refresh, no OAuth
+</code></pre>
+    </div>
+  </section>
+
+  <!-- PACKAGES -->
+  <section class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">Packages — npm vs GitHub Packages</h2>
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-emerald-400">npmjs — primary</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-bash">npm i -g @mastaan66/foreman
+npx @mastaan66/foreman --version
+# https://www.npmjs.com/package/@mastaan66/foreman</code></pre>
+        <div class="text-xs text-zinc-500 mt-2">Scoped <code>@mastaan66/foreman</code> is auto-allowed (your username). Unscoped <code>foreman</code> is taken (strongloop/node-foreman).</div>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-mono text-xs text-zinc-500">GitHub Packages — also npm, via GitHub registry</div>
+        <pre class="mt-3 bg-black rounded-lg p-3 overflow-x-auto text-sm"><code class="language-bash"># .npmrc for GitHub Packages
+@mastaan66:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+
+npm publish --registry https://npm.pkg.github.com
+# https://github.com/mastaan66/foreman/packages</code></pre>
+        <div class="text-xs text-zinc-500 mt-2">Same tarball, different registry. Use npmjs for public discoverability, GitHub Packages for org-private or provenance.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL ALL PLATFORMS -->
+  <section class="py-10 border-t border-white/10">
+    <h2 class="text-2xl font-bold">All platforms & CLIs — it just works</h2>
+    <div class="grid md:grid-cols-3 gap-6 mt-6 text-sm">
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-bold">Platforms</div>
+        <ul class="mt-2 space-y-1 text-zinc-400">
+          <li>✓ macOS (Intel/ARM) — <code>brew</code> + <code>npm</code></li>
+          <li>✓ Linux (x64/ARM) — <code>npm</code>, <code>npx</code></li>
+          <li>✓ Windows — <code>bin/foreman.cmd</code> + <code>bin/foreman.ps1</code></li>
+          <li>✓ Node ≥22, zero deps, pure ESM</li>
+        </ul>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-bold">CLIs</div>
+        <ul class="mt-2 space-y-1 text-zinc-400">
+          <li>✓ <code>opencode</code> (substrate) — <code>opencode --version</code></li>
+          <li>✓ <code>claude</code>, <code>codex</code>, <code>gemini</code> — via <code>foreman ask</code></li>
+          <li>✓ Any shell — <code>bash, zsh, fish, pwsh</code></li>
+          <li>✓ CI — <code>foreman verify</code> in GitHub Actions</li>
+        </ul>
+      </div>
+      <div class="rounded-xl bg-zinc-900 border border-white/10 p-5">
+        <div class="font-bold">Install</div>
+        <pre class="mt-2 bg-black rounded-lg p-3 overflow-x-auto text-xs"><code>npm i -g @mastaan66/foreman
+# or
+npx @mastaan66/foreman doctor
+# or from source
+git clone https://github.com/mastaan66/foreman
+./bin/foreman --version  # sh
+.\bin\foreman.cmd --version  # cmd
+pwsh bin/foreman.ps1 --version</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-8 border-t border-white/10 text-center text-xs text-zinc-500">
+    <div>Foreman · MIT · <a href="https://github.com/mastaan66/foreman" class="text-emerald-400 hover:underline">github.com/mastaan66/foreman</a> · <a href="https://www.npmjs.com/package/@mastaan66/foreman" class="text-emerald-400 hover:underline">npm</a> · Built with opencode, vhs, and hard budgets.</div>
+    <div class="mt-2">Star it if it saved you a decision. PRs welcome — see <a href="https://github.com/mastaan66/foreman/blob/main/CONTRIBUTING.md" class="text-zinc-400 hover:underline">CONTRIBUTING</a>.</div>
+  </footer>
+</main>
+<script>hljs.highlightAll();</script>
+</body>
+</html>
