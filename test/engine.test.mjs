@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { Workspace, parseFrontmatter, route, computeBudget, resolveModel, stalledModels, checkpointBrief, depsOf, DEFAULT_TIERS } from "../lib.mjs";
+import { Workspace, parseFrontmatter, route, computeBudget, resolveModel, stalledModels, checkpointBrief, depsOf, DEFAULT_TIERS, checkBudget, runCost } from "../lib.mjs";
 
 function scratch() {
   const root = mkdtempSync(join(tmpdir(), "foreman-test-"));
@@ -119,4 +119,28 @@ test("agent state is per-agent and survives read-modify-write", () => {
   assert.equal(s.runs, 2);
   assert.equal(s.sessions[0].id, "s1");
   assert.equal(ws.agentState("drone").spend, 0);
+});
+
+test("checkBudget: pure budget seam — over-budget and continuation warn", () => {
+  const mkRun = (o) => ({ steps: o.steps ?? 0, tokens: { total: o.total ?? 0, input: o.input ?? 0, output: o.output ?? 0, reasoning: 0 }, cost: o.cost ?? 0 });
+  const budget = { steps: 10, outTokens: 1000, ctxTokens: 5000, ctxKill: 10000, usd: 1, minutes: 60 };
+  const tier = { inputPerM: 0, outputPerM: 0 };
+  assert.equal(checkBudget(mkRun({ steps: 5 }), budget, tier).over, null);
+  assert.equal(checkBudget(mkRun({ steps: 11 }), budget, tier).over, "steps 11 > 10");
+  assert.match(checkBudget(mkRun({ output: 1001 }), budget, tier).over, /output tokens 1001/);
+  assert.match(checkBudget(mkRun({ total: 10001 }), budget, tier).over, /hard ceiling 10000/);
+  assert.equal(checkBudget(mkRun({ total: 6000 }), budget, tier).warn, true);
+  assert.equal(checkBudget(mkRun({ total: 4000 }), budget, tier).warn, false);
+  assert.equal(checkBudget(mkRun({ total: 10001 }), budget, tier).warn, false, "over supersedes warn");
+  // usd via tier pricing
+  const runPriced = mkRun({ input: 1_000_000, output: 0 });
+  const usd = runCost(runPriced, { inputPerM: 2 });
+  assert.equal(usd, 2);
+  assert.match(checkBudget(runPriced, { ...budget, usd: 1 }, { inputPerM: 2 }).over, /usd 2/);
+});
+
+test("checkBudget: reported cost supersedes tier pricing", () => {
+  const run = { steps: 5, tokens: { total: 100, input: 10, output: 10 }, cost: 5 };
+  const budget = { steps: 100, outTokens: 10000, ctxTokens: 5000, ctxKill: 10000, usd: 1 };
+  assert.match(checkBudget(run, budget, { inputPerM: 100 }).over, /usd 5/);
 });

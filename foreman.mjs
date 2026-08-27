@@ -23,6 +23,7 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync, createWriteStream, unlinkSync, renameSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
+  checkBudget,
   CLI_PATH,
   HERE,
   TEMPLATES,
@@ -294,23 +295,18 @@ async function executeRun({ ws, cmdName, argv, message, jsonlPath, logPath, repo
       run.tokens.output += tk.output ?? 0;
       run.tokens.reasoning += tk.reasoning ?? 0;
       run.cost += ev.part?.cost ?? 0;
-      // Budget enforcement — the engine, not the model, decides when enough is enough.
-      const usd = runCost(run, hooks.tierSpec);
-      const over =
-        run.steps > budget.steps ? `steps ${run.steps} > ${budget.steps}`
-        : run.tokens.output > budget.outTokens ? `output tokens ${run.tokens.output} > ${budget.outTokens}`
-        : run.tokens.total > budget.ctxKill ? `context ${run.tokens.total} > hard ceiling ${budget.ctxKill}`
-        : usd > budget.usd ? `usd ${usd.toFixed(4)} > ${budget.usd}`
-        : null;
+      // Budget enforcement — one deep interface; locality in lib.mjs, not here.
+      const { over, warn, usd } = checkBudget(run, budget, hooks.tierSpec);
       if (over) {
         say(`[foreman] OVER BUDGET: ${over} — terminating`);
         run.overBudget = over;
         terminate("budget");
-      } else if (run.tokens.total > budget.ctxTokens && !run.ctxWarned) {
+      } else if (warn && !run.ctxWarned) {
         // Past the continuation cap: the run may finish, but this session will not be resumed.
         run.ctxWarned = true;
         say(`[foreman] context ${run.tokens.total} passed the ${budget.ctxTokens} continuation cap — this session will not be resumed; hard ceiling ${budget.ctxKill}`);
       }
+      void usd;
     }
     if (ev.type === "error") {
       const data = ev.error?.data ?? {};

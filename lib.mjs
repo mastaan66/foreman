@@ -552,6 +552,27 @@ export function runCost(run, tierSpec = {}) {
   return inM * (tierSpec.inputPerM ?? 0) + outM * (tierSpec.outputPerM ?? 0);
 }
 
+/**
+ * Deep module seam for budget enforcement — the only place that decides
+ * whether a run has crossed a limit. Pure: no I/O, no spawn, fully testable
+ * from fixture tokens. Returns the over-budget reason or null, plus whether
+ * the continuation cap was crossed (warn, not kill).
+ *
+ * Interface: checkBudget(run, budget, tierSpec) → { over: string|null, warn: boolean, usd }
+ * Tests hit this interface; callers don't re-implement the checks.
+ */
+export function checkBudget(run, budget, tierSpec = {}) {
+  const usd = runCost(run, tierSpec);
+  const over =
+    run.steps > budget.steps ? `steps ${run.steps} > ${budget.steps}`
+    : run.tokens.output > budget.outTokens ? `output tokens ${run.tokens.output} > ${budget.outTokens}`
+    : run.tokens.total > budget.ctxKill ? `context ${run.tokens.total} > hard ceiling ${budget.ctxKill}`
+    : usd > budget.usd ? `usd ${usd.toFixed(4)} > ${budget.usd}`
+    : null;
+  const warn = !over && run.tokens.total > budget.ctxTokens;
+  return { over, warn, usd };
+}
+
 /** Last `n` lines of the latest gate log, or "". */
 export function gateTail(ws, id, n = 40) {
   const f = ws.latestVerifyLog(id);
