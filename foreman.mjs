@@ -24,6 +24,7 @@ import { existsSync, readFileSync, writeFileSync, createWriteStream, unlinkSync,
 import { join, resolve } from "node:path";
 import {
   CLI_PATH,
+  HERE,
   TEMPLATES,
   Workspace,
   checkpointBrief,
@@ -42,16 +43,51 @@ import {
   runShell,
 } from "./lib.mjs";
 
+const VERSION = (() => {
+  try {
+    return JSON.parse(readFileSync(join(HERE, "package.json"), "utf8")).version ?? "0.0.0";
+  } catch {
+    return "0.0.0";
+  }
+})();
+
 // ---------- init / tickets -----------------------------------------------------------
 
 function cmdInit(args) {
   const root = args._[1] ?? process.cwd();
   const name = args.name ?? resolve(root).split("/").pop();
+  // Pre-flight checks
+  const major = Number(process.versions.node.split(".")[0]);
+  if (major < 22) process.stderr.write(`warning: Node ${process.versions.node} < 22 — foreman requires Node >=22\n`);
   const ws = new Workspace(root);
+  const already = existsSync(ws.configPath);
   ws.init(name);
   const synced = ws.syncOpencodeAgents(ws.models());
-  ws.activity("manager", `initialised workspace "${name}" with ${synced.length} agents`);
-  process.stdout.write(`initialised ${ws.dir} for project "${name}"\nagents: ${synced.map((s) => `${s.name}→${s.model ?? "?"}`).join(", ")}\n`);
+  ws.activity("manager", `${already ? "re-initialised" : "initialised"} workspace "${name}" with ${synced.length} agents`);
+  const rel = ws.dir.replace(resolve(root) + "/", "");
+  process.stdout.write(`${already ? "re-initialised" : "initialised"} ${ws.dir} for project "${name}"\n`);
+  process.stdout.write(`  agents: ${synced.map((s) => `${s.name}→${s.model ?? "?"}`).join(", ")}\n`);
+  process.stdout.write(`  tiers:  ${Object.entries(ws.config().tiers).map(([k, t]) => `${k}=${String(t.model).split("/").pop()}`).join("  ")}\n`);
+  if (!already) {
+    process.stdout.write(`\nnext:\n`);
+    process.stdout.write(`  foreman doctor                 check setup\n`);
+    process.stdout.write(`  foreman ticket hello --title "Hello world"   create your first ticket\n`);
+    process.stdout.write(`  foreman models --probe         verify models (30-90s)\n`);
+    process.stdout.write(`  foreman ui                     open dashboard\n`);
+    process.stdout.write(`\nquick start (30 seconds):\n`);
+    process.stdout.write(`  foreman ticket hello --title "Add a hello test"\n`);
+    process.stdout.write(`  $EDITOR ${join(ws.ticketsDir, "T001-hello.md")}   # fill Goal/Requirements/verify\n`);
+    process.stdout.write(`  foreman run T001 --verify\n`);
+  }
+  // Optionally create a sample ticket if requested
+  if (args.sample && ws.tickets().length === 0) {
+    const file = join(ws.ticketsDir, `T001-hello.md`);
+    if (!existsSync(file)) {
+      let tpl = readFileSync(join(TEMPLATES, "ticket.md"), "utf8").replaceAll("{{id}}", "T001").replaceAll("{{title}}", "Hello world").replaceAll("{{date}}", nowIso().slice(0, 10));
+      writeFileSync(file, tpl);
+      process.stdout.write(`\nsample ticket: ${file}\n`);
+    }
+  }
 }
 
 function cmdTicket(args) {
@@ -856,8 +892,54 @@ async function cmdUi(args) {
   await startUi(ws, args);
 }
 
+async function cmdDoctor() {
+  const ws = Workspace.find();
+  const checks = [];
+  const ok = (msg) => `✓ ${msg}`;
+  const fail = (msg) => `✗ ${msg}`;
+  const warn = (msg) => `○ ${msg}`;
+
+  // Node
+  const major = Number(process.versions.node.split(".")[0]);
+  checks.push(major >= 22 ? ok(`Node ${process.versions.node} (>=22)`) : fail(`Node ${process.versions.node} — need >=22`));
+
+  // opencode
+  const { code: ocCode, out: ocOut } = await runShell("opencode --version 2>&1 || opencode --help 2>&1 | head -1", process.cwd());
+  if (ocCode === 0 && /opencode|1\.\d+/.test(ocOut)) checks.push(ok(`opencode on PATH — ${ocOut.trim().split("\n")[0].slice(0, 60)}`));
+  else checks.push(fail(`opencode not found on PATH — install: https://opencode.ai (curl -fsSL https://opencode.ai/install | bash)`));
+
+  // workspace
+  if (ws) {
+    checks.push(ok(`workspace: ${ws.root} (.foreman present)`));
+    const cfg = ws.config();
+    checks.push(ok(`project: ${cfg.project ?? "(unnamed)"} · ${ws.agents().length} agents · ${ws.tickets().length} tickets`));
+    const models = ws.models();
+    const probed = models.probedAt ? `probed ${models.probedAt.slice(0, 10)}` : "never probed";
+    checks.push(Object.keys(models.models ?? {}).length ? ok(`models: ${Object.keys(models.models).length} known (${probed})`) : warn(`models: not probed yet — run foreman models --probe`));
+    const synced = ws.syncOpencodeAgents(models);
+    const changed = synced.filter((s) => s.changed).length;
+    checks.push(changed ? warn(`${changed} .opencode/agent files out of sync (foreman agents sync will fix)`) : ok(`.opencode/agent synced (${synced.length} agents)`));
+    if (!existsSync(join(ws.root, ".foreman", "PROTOCOL.md"))) checks.push(warn(`PROTOCOL.md missing`));
+  } else {
+    checks.push(warn(`not inside a foreman workspace — run foreman init`));
+  }
+
+  // git
+  const { code: gitCode } = await runShell("git --version >/dev/null 2>&1", process.cwd());
+  checks.push(gitCode === 0 ? ok(`git present`) : warn(`git not found`));
+
+  const fails = checks.filter((c) => c.startsWith("✗")).length;
+  const warns = checks.filter((c) => c.startsWith("○")).length;
+  process.stdout.write(`foreman doctor — v${VERSION}\n${checks.join("\n")}\n\n${fails ? `${fails} check(s) failed` : warns ? `${warns} warning(s)` : "all checks passed"} — run foreman --help for next steps\n`);
+  if (fails) process.exitCode = 1;
+}
+
+function cmdVersion() {
+  process.stdout.write(`${VERSION}\n`);
+}
+
 function cmdHelp() {
-  process.stdout.write(`foreman — multi-model orchestration engine for AI coding agents
+  process.stdout.write(`foreman v${VERSION} — multi-model orchestration engine for AI coding agents
 
   foreman                                   open the dashboard (same as \`foreman ui\`) when inside a workspace
   foreman ui [--queue|--work] [--once] [--view org|tasks|agent|cost|stream]
@@ -878,6 +960,8 @@ function cmdHelp() {
   foreman note "..." [--ticket T] [--phase p]
   foreman cost [--by tier|agent|model|ticket] [--json]
   foreman status · report <id> · tail <id> [--lines N] · diff
+  foreman doctor                            check Node, opencode, workspace, models
+  foreman --version | -v | version          print version
 `);
 }
 
@@ -888,8 +972,20 @@ process.stdout.on("error", (e) => {
 });
 
 const args = parseArgs(process.argv.slice(2));
+if (args.version || args.v) {
+  cmdVersion();
+  process.exit(0);
+}
 const cmd = args._[0];
-const table = { init: cmdInit, ticket: cmdTicket, agents: cmdAgents, models: cmdModels, ask: cmdAsk, run: cmdRun, work: cmdWork, queue: cmdQueue, verify: cmdVerify, accept: cmdAccept, note: cmdNote, cost: cmdCost, status: cmdStatus, report: cmdReport, diff: cmdDiff, tail: cmdTail, ui: cmdUi, help: cmdHelp };
+if (cmd === "--version" || cmd === "-v") {
+  cmdVersion();
+  process.exit(0);
+}
+if (cmd === "--help" || cmd === "-h") {
+  cmdHelp();
+  process.exit(0);
+}
+const table = { init: cmdInit, ticket: cmdTicket, agents: cmdAgents, models: cmdModels, ask: cmdAsk, run: cmdRun, work: cmdWork, queue: cmdQueue, verify: cmdVerify, accept: cmdAccept, note: cmdNote, cost: cmdCost, status: cmdStatus, report: cmdReport, diff: cmdDiff, tail: cmdTail, ui: cmdUi, help: cmdHelp, doctor: cmdDoctor, version: cmdVersion };
 if (!cmd) {
   if (Workspace.find()) await cmdUi(args);
   else cmdHelp();

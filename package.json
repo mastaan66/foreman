@@ -1,13 +1,21 @@
 {
-  "name": "foreman",
-  "version": "0.2.0",
+  "name": "@mastaan/foreman",
+  "version": "0.3.0",
   "description": "Multi-model orchestration engine for AI coding agents: hierarchy, tiers, budgets, gates, dashboard.",
   "type": "module",
   "bin": { "foreman": "./bin/foreman" },
+  "files": ["bin/", "foreman.mjs", "lib.mjs", "ui.mjs", "templates/", "README.md", "LICENSE"],
+  "keywords": ["ai", "agents", "orchestration", "opencode", "cli", "multi-model", "llm", "dashboard", "tui"],
+  "author": "mastaan66 <mastaanshaik37@gmail.com>",
+  "repository": { "type": "git", "url": "https://github.com/mastaan66/foreman.git" },
+  "homepage": "https://github.com/mastaan66/foreman#readme",
+  "bugs": { "url": "https://github.com/mastaan66/foreman/issues" },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "check": "node --check lib.mjs && node --check foreman.mjs && node --check ui.mjs"
+    "check": "node --check lib.mjs && node --check foreman.mjs && node --check ui.mjs",
+    "prepublishOnly": "npm test && npm run check"
   },
   "engines": { "node": ">=22" },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": { "access": "public" }
 }
