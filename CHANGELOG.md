@@ -4,8 +4,15 @@ All notable changes to foreman.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-08-27
+
 ### Added
-- `GROWTH.md` launch checklist, `docs/demo.tape` VHS script
+- `docs/demo.gif` real VHS recording (1200x700, 215K) via `vhs@0.11.0` + `ttyd@1.7.7`
+- Release `v0.3.0` and GitHub release badge
+
+### Changed
+- CLI deepened: `COMMANDS[]` registry — help and dispatch co-located, one entry per command (`foreman.mjs:937-991`)
+- Scope fixed: `@mastaan/foreman` → `@mastaan66/foreman` (auto-allowed, fixes npm 404)
 
 ## [0.3.0] - 2026-08-27
 
