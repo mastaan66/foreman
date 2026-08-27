@@ -930,6 +930,95 @@ async function cmdDoctor() {
   if (fails) process.exitCode = 1;
 }
 
+async function cmdDecide(args) {
+  const ws = Workspace.find() ?? die("not inside a foreman workspace (run `foreman init`)");
+  const question = args._.slice(1).join(" ") || die('usage: foreman decide "question" --options "a,b" [--criteria "cost,scale"] [--agent lead]');
+  const options = (args.options ?? args.opts ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const criteria = (args.criteria ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  const agent = args.agent ?? "lead";
+  const prompt = `# DECIDE — structured choice
+
+Question: ${question}
+${options.length ? `Options:\n${options.map((o, i) => `${i + 1}. ${o}`).join("\n")}` : "Options: propose 2-3 sensible options yourself"}
+${criteria.length ? `Criteria to weigh: ${criteria.join(", ")}` : "Criteria: propose the 3-5 criteria that matter for this choice"}
+Project: ${ws.config().project ?? ws.root}
+
+Produce a decision matrix (markdown table) with columns: option, pros, cons, risk, effort (S/M/L), reversibility (high/medium/low).
+Then a one-paragraph recommendation with the single most important reason and the next concrete step.
+Keep it under 300 words. No code — judgement only.`;
+  // delegate to ask
+  await cmdAsk({ _: ["ask", agent, prompt], agent, fresh: args.fresh, file: args.file, model: args.model });
+}
+
+async function cmdPlan(args) {
+  const ws = Workspace.find() ?? die("not inside a foreman workspace");
+  const goal = args._.slice(1).join(" ") || die('usage: foreman plan "goal" [--agent lead]');
+  const agent = args.agent ?? "lead";
+  const prompt = `# PLAN — decompose a goal into foreman tickets
+
+Goal: ${goal}
+Project: ${ws.config().project ?? ws.root}
+Current tickets: ${ws.tickets().map((t) => `${t.id} ${t.meta.title ?? ""} [${t.meta.status ?? "queued"}]`).join(", ") || "(none)"}
+
+Read only the files the goal mentions (if any). Produce subtask tickets in .foreman/tickets/ as <parent>.<n>-<slug>.md with frontmatter id, parent, kind (implement|test|chore|research), depends_on, budget, verify.
+Each subtask must be finishable by a standard-tier model in <40m from its text alone, and its verify must be able to FAIL on each acceptance criterion.
+Route boring work to kind:chore so it lands on economy. Output the list of tickets you created and their verify commands.`;
+  await cmdAsk({ _: ["ask", agent, prompt], agent, fresh: args.fresh, model: args.model });
+}
+
+function cmdPrioritize() {
+  const ws = Workspace.find() ?? die("not inside a foreman workspace");
+  const state = ws.state();
+  const tickets = ws.tickets().map((t) => ({ ...t, status: state.tickets[t.id]?.status ?? "queued", deps: depsOf(t.meta) }));
+  const queued = tickets.filter((t) => t.status === "queued");
+  const blocked = queued.filter((t) => t.deps.some((d) => (state.tickets[d]?.status ?? "queued") !== "verified"));
+  const ready = queued.filter((t) => !blocked.includes(t));
+  // simple heuristic: fewer deps first, then alphabetical
+  ready.sort((a, b) => a.deps.length - b.deps.length || a.id.localeCompare(b.id));
+  process.stdout.write(`# prioritize — ${queued.length} queued, ${ready.length} ready, ${blocked.length} blocked\n\n`);
+  process.stdout.write(`## Ready (can run now)\n${ready.map((t) => `- ${t.id} [${t.meta.kind ?? "implement"}] ${t.meta.title ?? ""} — deps: ${t.deps.join(",") || "none"}`).join("\n") || "(none)"}\n\n`);
+  process.stdout.write(`## Blocked (needs deps)\n${blocked.map((t) => `- ${t.id} → waiting on ${t.deps.filter((d) => (state.tickets[d]?.status ?? "queued") !== "verified").join(", ")} — ${t.meta.title ?? ""}`).join("\n") || "(none)"}\n\n`);
+  process.stdout.write(`## Suggested next (lowest deps)\n${ready.slice(0, 3).map((t) => `1. ${t.id} ${t.meta.title ?? ""}`).join("\n") || "— nothing ready; verify blocked tickets or create new ones"}\n`);
+  process.stdout.write(`\nTip: foreman work --watch runs ready tickets in this order; foreman decide "which to do first?" asks the lead for a judgement call.\n`);
+}
+
+async function cmdCompanion(args) {
+  const ws = Workspace.find() ?? die("not inside a foreman workspace");
+  if (args.watch) {
+    process.stdout.write(`# companion --watch — proactive friend (polls every 30s, suggests next)\n`);
+    process.stdout.write(`Watching ${ws.root} — press Ctrl+C to stop\n\n`);
+    for (;;) {
+      const state = ws.state();
+      const tickets = ws.tickets();
+      const queued = tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "queued");
+      const running = tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "running");
+      const blocked = tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "blocked");
+      const at = new Date().toLocaleTimeString();
+      if (running.length) process.stdout.write(`[${at}] ${running.length} running: ${running.map((t) => t.id).join(", ")} — tail with foreman tail <id>\n`);
+      else if (blocked.length) process.stdout.write(`[${at}] ${blocked.length} blocked: ${blocked.map((t) => t.id).join(", ")} — needs your decision: foreman decide "how to unblock?"\n`);
+      else if (queued.length) {
+        const next = queued.find((t) => depsOf(t.meta).every((d) => (state.tickets[d]?.status ?? "queued") === "verified"));
+        process.stdout.write(`[${at}] ${queued.length} queued — next up: ${next ? `${next.id} ${next.meta.title ?? ""} (foreman run ${next.id})` : "all blocked on deps — foreman prioritize"}\n`);
+      } else process.stdout.write(`[${at}] all clear — ${tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "verified").length} verified, nothing queued\n`);
+      await new Promise((r) => setTimeout(r, 30000));
+    }
+  }
+  // one-shot suggestion
+  const state = ws.state();
+  const tickets = ws.tickets();
+  const queued = tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "queued");
+  const verified = tickets.filter((t) => (state.tickets[t.id]?.status ?? "queued") === "verified").length;
+  process.stdout.write(`# companion — your decision friend\nProject: ${ws.config().project} · ${tickets.length} tickets · ${verified} verified · ${queued.length} queued\n\n`);
+  if (!queued.length) {
+    process.stdout.write(`Nothing queued. Try:\n  foreman plan "your next goal" — asks lead to break it into tickets\n  foreman decide "which feature next?" --options "A,B" --criteria "impact,effort"\n`);
+    return;
+  }
+  const next = queued.find((t) => depsOf(t.meta).every((d) => (state.tickets[d]?.status ?? "queued") === "verified"));
+  if (next) process.stdout.write(`Next up: ${next.id} — ${next.meta.title ?? ""}\n  foreman run ${next.id} --verify\n  foreman tail ${next.id}  # watch it\n`);
+  else process.stdout.write(`All queued are blocked on deps. Run foreman prioritize to see why, or foreman decide "what unblocks us?"\n`);
+  process.stdout.write(`\nProactive: foreman companion --watch runs in background and nudges you every 30s.\n`);
+}
+
 function cmdVersion() {
   process.stdout.write(`${VERSION}\n`);
 }
@@ -953,6 +1042,10 @@ const COMMANDS = [
   { name: "tail", handler: cmdTail, usage: "tail <id> [--lines N]", desc: "" },
   { name: "diff", handler: cmdDiff, usage: "diff", desc: "" },
   { name: "ui", handler: cmdUi, usage: "ui [--queue|--work] [--once] [--view org|tasks|agent|cost|stream]", desc: "open the dashboard (same as `foreman` when inside a workspace)" },
+  { name: "decide", handler: cmdDecide, usage: 'decide "question" --options "a,b" [--criteria "cost,scale"]', desc: "decision matrix from lead (premium) — options × criteria, recommendation" },
+  { name: "plan", handler: cmdPlan, usage: 'plan "goal" [--agent lead]', desc: "lead decomposes goal into tickets (each <40m, verify can fail)" },
+  { name: "prioritize", handler: cmdPrioritize, usage: "prioritize", desc: "rank queued tickets by deps — ready vs blocked, next up" },
+  { name: "companion", handler: cmdCompanion, usage: "companion [--watch]", desc: "proactive friend — suggests next, watches in background every 30s" },
   { name: "doctor", handler: cmdDoctor, usage: "doctor", desc: "check Node, opencode, workspace, models" },
   { name: "version", handler: cmdVersion, usage: "--version | -v | version", desc: "print version" },
   { name: "help", handler: cmdHelp, usage: "help", desc: "" },
