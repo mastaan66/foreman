@@ -1,44 +1,46 @@
 Output docs/demo.gif
 Require foreman
-Require echo
+Require bash
 Set Shell "bash"
-Set FontSize 14
-Set Width 1200
-Set Height 700
-Set Theme "Catppuccin Mocha"
-Set Padding 20
-Set Framerate 30
-Set TypingSpeed 30ms
+Set FontSize 13
+Set Width 1280
+Set Height 760
+Set Theme "Catppuccin Macchiato"
+Set Padding 18
 Set WindowBar Colorful
+Set WindowBarSize 28
+Set BorderRadius 12
+Set Framerate 30
+Set TypingSpeed 18ms
+Set CursorBlink false
+Set LetterSpacing 0.5
 
-Type "foreman --version"
-Enter
-Sleep 800
+Type "clear" Sleep 200ms Enter
+Sleep 400ms
 
-Type "foreman doctor"
-Enter
-Sleep 1500
+Type "foreman --version && echo '  — multi-model orchestration v0.3.1'" Sleep 300ms Enter
+Sleep 900ms
 
-Type "mkdir -p /tmp/demo && cd /tmp/demo && foreman init --name demo"
-Enter
-Sleep 1200
+Type "foreman doctor" Sleep 300ms Enter
+Sleep 1600ms
 
-Type "foreman ticket hello --title 'Add a hello test'"
-Enter
-Sleep 800
+Type "rm -rf /tmp/foreman-macos-demo && mkdir -p /tmp/foreman-macos-demo && cd /tmp/foreman-macos-demo && foreman init --name macos-demo 2>&1 | head -20" Sleep 300ms Enter
+Sleep 1400ms
 
-Type "cat .foreman/tickets/T001-hello.md"
-Enter
-Sleep 1000
+Type "foreman agents" Sleep 300ms Enter
+Sleep 1300ms
 
-Type "foreman agents"
-Enter
-Sleep 1200
+Type "foreman ticket hello --title 'Hello world'" Sleep 300ms Enter
+Sleep 800ms
 
-Type "foreman cost --by tier"
-Enter
-Sleep 1200
+Type "ls -R .foreman 2>&1 | head -30" Sleep 300ms Enter
+Sleep 900ms
 
-Type "foreman --help"
-Enter
-Sleep 1500
+Type "foreman status" Sleep 300ms Enter
+Sleep 900ms
+
+Type "foreman cost --by tier 2>&1 | head -20" Sleep 300ms Enter
+Sleep 900ms
+
+Type "foreman --help | head -24" Sleep 300ms Enter
+Sleep 1200ms
