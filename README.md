@@ -20,9 +20,9 @@ director ─▶ lead (premium: plan · review · gates)
 > **Design doc:** [`docs/WORKFORCE_PLAN.md`](docs/WORKFORCE_PLAN.md) · **Zero dependencies · Node ≥22 · opencode as substrate**
 
 <p align="center">
-  <img src="docs/demo.gif" alt="foreman demo — macOS, 22s, Catppuccin Macchiato" width="800" />
+  <img src="docs/demo.gif" alt="foreman demo — macOS, 59s, every feature, Catppuccin Macchiato" width="800" />
   <br/>
-  <em>22s demo (macOS, Catppuccin Macchiato, 1280×760): <code>foreman --version → doctor → init → agents → ticket → status → cost → --help</code> — every core command in one take. <a href="#recording-a-demo">Record your own with VHS</a> · <code>vhs docs/demo.tape</code></em>
+  <em>59s demo (macOS, Catppuccin Macchiato, 1320×820): <code>version → doctor → help → init → agents → foreman.json → models → ticket → status → cost (tier/agent/model) → verify/run → work/queue → ask/note → report/tail/diff → ls -R → ui --once</code> — every command in one take. <a href="#recording-a-demo">Record your own with VHS</a> · <code>vhs docs/demo.tape</code></em>
 </p>
 
 ## 15-second quick start
