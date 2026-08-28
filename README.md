@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 ![No dependencies](https://img.shields.io/badge/dependencies-0-blue)
 
-**Multi-model orchestration for AI coding agents — a director writes tickets; a tiered workforce (lead → coder/tester → drone) executes them through [opencode](https://opencode.ai) under hard budgets and gates.**
+**Multi-model orchestration for AI coding agents - a director writes tickets; a tiered workforce (lead → coder/tester → drone) executes them through [opencode](https://opencode.ai) under hard budgets and gates.**
 
 ```
 director ─▶ lead (premium: plan · review · gates)
@@ -20,7 +20,7 @@ director ─▶ lead (premium: plan · review · gates)
 > **Design doc:** [`docs/WORKFORCE_PLAN.md`](docs/WORKFORCE_PLAN.md) · **Zero dependencies · Node ≥22 · opencode as substrate**
 
 <p align="center">
-  <img src="docs/demo.gif" alt="foreman demo — macOS, 45s, hierarchy & memory, Catppuccin Macchiato" width="800" />
+  <img src="docs/demo.gif" alt="foreman demo - macOS, 45s, hierarchy & memory, Catppuccin Macchiato" width="800" />
   <br/>
   <em>45s demo (macOS, Catppuccin Macchiato, 1280×760): <strong>how to use</strong> → <strong>hierarchy</strong> (<code>foreman agents</code>, tiers) → <strong>memory</strong> (<code>ctxCap/ctxKill, checkBudget, checkpointBrief, cost</code>) → <strong>ticket example</strong> (<code>docs/example-ticket.md</code>) → <code>ui --once</code>. Every command in one take. <a href="#recording-a-demo">Record your own with VHS</a> · <code>vhs docs/demo.tape</code> · <a href="docs/example-ticket.md">Example ticket</a></em>
 </p>
@@ -42,7 +42,7 @@ foreman init --name my-project
 
 # 4. first ticket
 foreman ticket hello --title "Add a hello test"
-# edit .foreman/tickets/T001-hello.md — fill Goal, Requirements, verify
+# edit .foreman/tickets/T001-hello.md - fill Goal, Requirements, verify
 foreman run T001 --verify
 foreman report T001      # worker's claims
 foreman tail T001        # live digest
@@ -76,13 +76,13 @@ foreman doctor
 - **The worker's word is never the gate.** Foreman runs `verify` itself; the report is read, not trusted.
 - **Same-session feedback.** `foreman run T001 --continue --message "use pg-mem"` resumes the worker's `sessionID`.
 - **Everything on disk.** JSONL, digest, message, REPORT.md, verify logs, state with tokens/duration/exit per run.
-- **Budgets enforced by the engine.** Steps, output tokens, context, USD, minutes — crossing any limit SIGTERMs the worker and escalates (fresh → lead review → blocked).
+- **Budgets enforced by the engine.** Steps, output tokens, context, USD, minutes - crossing any limit SIGTERMs the worker and escalates (fresh → lead review → blocked).
 
-Token discipline (binding, see plan §3): deterministic before generative, premium tier judges only from capped briefs, volume goes down-tier, no `--continue` past the tier's context cap — fresh session from a deterministic checkpoint brief instead.
+Token discipline (binding, see plan §3): deterministic before generative, premium tier judges only from capped briefs, volume goes down-tier, no `--continue` past the tier's context cap - fresh session from a deterministic checkpoint brief instead.
 
-## Decision-making friend — for heavy workloads
+## Decision-making friend - for heavy workloads
 
-Foreman is your companion when every ticket needs a tradeoff. It doesn't just run — it *decides* with you:
+Foreman is your companion when every ticket needs a tradeoff. It doesn't just run - it *decides* with you:
 
 ```bash
 foreman decide "pg vs mongo for auth?" --options "pg,mongo" --criteria "consistency,scale,cost"
@@ -91,12 +91,12 @@ foreman decide "pg vs mongo for auth?" --options "pg,mongo" --criteria "consiste
 foreman plan "Build SaaS billing"      # lead breaks vague goal into tickets (<40m each)
 foreman prioritize                     # ready vs blocked, next up (deps)
 foreman companion                      # one-shot suggestion
-foreman companion --watch              # proactive friend — nudges every 30s
+foreman companion --watch              # proactive friend - nudges every 30s
 ```
 
 All platforms & CLIs: `npm`/`npx`/`brew`, `macOS/Linux/Windows` (`bin/foreman`, `bin/foreman.cmd`, `bin/foreman.ps1`), `bash/zsh/fish/pwsh`, `opencode`/`claude`/`codex` via `foreman ask`. Site: `https://mastaan66.github.io/foreman/` · Example: `docs/example-ticket.md` · Demo: `docs/demo.gif` 45s macOS.
 
-## How it works — the pipe
+## How it works - the pipe
 
 ```
    MANAGER (Claude/you)            FOREMAN                     WORKER (opencode, headless)
@@ -157,10 +157,10 @@ foreman ui --once     # one frame
  r run  c continue+msg  v verify  a accept  q queue  tab stream/activity/report  Q quit
 ```
 
-- **NOW** — three sentences: what the worker is doing this second, what the manager is doing, what the queue dispatches next.
-- **PIPELINE** — DAG from `depends_on`, one column per depth, glyphs `○ queued ◐ running ◔ review ● verified ✗ broken/ blocked`.
-- **Keys:** `r` run · `c` continue · `v` gate · `a` accept · `q` queue · `w` work · `p` ask lead · `tab` panels · `1-4` views · `Q` quit — detached, so `Q` never kills workers.
-- **Spend** — per run/ticket/agent from opencode's `cost`; free tier shows `$0.00` (set `tiers.<name>.inputPerM/outputPerM` to estimate).
+- **NOW** - three sentences: what the worker is doing this second, what the manager is doing, what the queue dispatches next.
+- **PIPELINE** - DAG from `depends_on`, one column per depth, glyphs `○ queued ◐ running ◔ review ● verified ✗ broken/ blocked`.
+- **Keys:** `r` run · `c` continue · `v` gate · `a` accept · `q` queue · `w` work · `p` ask lead · `tab` panels · `1-4` views · `Q` quit - detached, so `Q` never kills workers.
+- **Spend** - per run/ticket/agent from opencode's `cost`; free tier shows `$0.00` (set `tiers.<name>.inputPerM/outputPerM` to estimate).
 
 ## Commands
 
@@ -178,7 +178,7 @@ foreman verify <id> | accept <id> --note "..." | cost [--by tier|agent|model|tic
 foreman --version | -v | version
 ```
 
-`queue` is conservative — only dispatches when every `depends_on` is `verified`, halts on first failed gate. `work` ladder: `attempt 1 → fresh retry · attempt 2 → supervisor review (FEEDBACK.md) · attempt 3 → blocked`.
+`queue` is conservative - only dispatches when every `depends_on` is `verified`, halts on first failed gate. `work` ladder: `attempt 1 → fresh retry · attempt 2 → supervisor review (FEEDBACK.md) · attempt 3 → blocked`.
 
 ## Ticket format
 
@@ -221,7 +221,7 @@ verify:
 
 ```bash
 npm i -g vhs                # https://github.com/charmbracelet/vhs
-vhs docs/demo.tape          # writes demo.gif — replace the placeholder above
+vhs docs/demo.tape          # writes demo.gif - replace the placeholder above
 ```
 
 `docs/demo.tape` example:
@@ -247,4 +247,4 @@ See `CONTRIBUTING.md` and `CHANGELOG.md`.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
