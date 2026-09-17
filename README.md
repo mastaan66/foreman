@@ -1,11 +1,8 @@
 # Foreman
 
 [![npm version](https://img.shields.io/npm/v/@mastaan66/foreman?color=brightgreen)](https://www.npmjs.com/package/@mastaan66/foreman)
-[![GitHub release](https://img.shields.io/github/v/release/mastaan66/foreman?label=release&color=blue)](https://github.com/mastaan66/foreman/releases)
 [![CI](https://github.com/mastaan66/foreman/actions/workflows/ci.yml/badge.svg)](https://github.com/mastaan66/foreman/actions)
-[![Node >=22](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-![No dependencies](https://img.shields.io/badge/dependencies-0-blue)
 
 **Multi-model orchestration for AI coding agents - a director writes tickets; a tiered workforce (lead → coder/tester → drone) executes them through [opencode](https://opencode.ai) under hard budgets and gates.**
 
